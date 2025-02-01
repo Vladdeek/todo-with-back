@@ -58,6 +58,16 @@ async def create_todo(todo: TodoCreate, db: Session = Depends(get_db)) -> DbTodo
 
     return db_todo
 
+@app.delete("/todo/{id}")
+async def delete_todo(id: int, db: Session = Depends(get_db)):
+    todo = db.query(Todo).filter(Todo.id == id).first()
+    if todo is None:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+    
+    db.delete(todo)
+    db.commit()
+    return {"message": f"Задача с id {id} была удалена"}
+
 # Вывод всех данных
 @app.get("/todo/", response_model=List[DbTodo])
 async def todo(db: Session = Depends(get_db)):

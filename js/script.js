@@ -121,8 +121,8 @@ let colorIndex = 1;
 // Функция для создания задачи
 function createNewTask(name, description, status = 'var(--status-color1)', id = null) {
 	const taskCol = document.createElement('div');
-	taskCol.classList.add('col-lg-4', 'col-md-6', 'col-xs-12');
-	taskCol.id = id || `task${divid++}`;
+	taskCol.classList.add('for-take-id','col-lg-4', 'col-md-6', 'col-xs-12');
+	taskCol.id = id || `${divid++}`;
 
 	const taskContent = document.createElement('div');
 	taskContent.classList.add('content');
@@ -132,6 +132,7 @@ function createNewTask(name, description, status = 'var(--status-color1)', id = 
 	const delBtn = document.createElement('button');
 	delBtn.classList.add('del-btn');
 	delBtn.innerText = '+';
+	delBtn.setAttribute('onclick', 'deleteTodo(event)');
 
 	// Добавляем содержимое задачи
 	taskContent.innerHTML = `
@@ -153,7 +154,7 @@ async function fetchTodos() {
 		const todos = await response.json();
 
 		todos.forEach(todo => {
-			createNewTask(todo.title, todo.description, 'var(--status-color1)', `task${todo.id}`);
+			createNewTask(todo.title, todo.description, 'var(--status-color1)', `${todo.id}`);
 		});
 	} catch (error) {
 		console.error('Ошибка загрузки задач:', error);
@@ -190,7 +191,7 @@ async function addTodo(event) {
             console.log("Задача создана: " + JSON.stringify(data)); // Уведомление после создания задачи
 
 			  // Создаем задачу на фронтенде, используя данные из ответа сервера
-			  createNewTask(data.title, data.description, 'var(--status-color1)', `task${data.id}`);
+			  createNewTask(data.title, data.description, 'var(--status-color1)', `${data.id}`);
         } else {
             let errorData = await response.json();
             console.log("Ошибка: " + errorData.detail);
@@ -206,4 +207,45 @@ async function addTodo(event) {
     // Очищаем поля ввода для следующей задачи
     document.querySelector('.input-name-task').value = '';
     document.querySelector('.input-description-task').value = '';
+}
+
+async function deleteTodo(event) {
+    event.preventDefault(); // Останавливает стандартное поведение события
+   // Находим родительский элемент с классом "for-take-id"
+   let taskElement = event.target.closest('.for-take-id');
+    
+   // Получаем ID этого родительского элемента
+   let taskId = taskElement ? taskElement.id : null;
+
+   if (!taskId) {
+	   alert("Не найден ID задачи!");
+	   return;
+   }
+
+   console.log("ID задачи:", taskId);  // Выведет ID элемента, например "8"
+
+    try {
+        // Отправляем запрос DELETE на сервер
+        let response = await fetch(`http://127.0.0.1:8000/todo/${taskId}`, {
+            method: "DELETE",
+            headers: { "accept": "application/json" }
+        });
+
+        if (response.ok) {
+            let data = await response.json();
+            console.log("Задача удалена: " + JSON.stringify(data)); // Уведомление после удаления задачи
+
+            // Удаляем задачу с фронтенда (например, удаляя DOM элемент)
+            let taskElement = document.getElementById(`${taskId}`);
+            if (taskElement) {
+                taskElement.remove();
+            }
+        } else {
+            let errorData = await response.json();
+            console.log("Ошибка: " + errorData.detail);
+        }
+    } catch (error) {
+        console.error("Ошибка запроса:", error);
+        console.log("Ошибка соединения с сервером");
+    }
 }
