@@ -14,38 +14,6 @@ function loadFromLocalStorage() {
 	toggleTheme() // Вызываем toggleTheme для применения тёмной темы
 }
 
-function saveTask(event) {
-	// Предотвращаем отправку формы
-	event.preventDefault()
-
-	// Получаем значения из инпутов
-	const inputName = document.querySelector('.input-name-task').value
-	const inputDescription = document.querySelector(
-		'.input-description-task'
-	).value
-
-	// Проверяем, что оба поля заполнены
-	if (inputName && inputDescription) {
-		// Если оба поля заполнены, создаём задачу
-		createNewTask(inputName, inputDescription)
-		console.log('Задача создана:', inputName, inputDescription)
-	} else {
-		console.error('Введите название и описание задачи.')
-	}
-
-	// Закрываем модальное окно после создания задачи
-	hideCreateModal()
-
-	// Очищаем поля ввода для следующей задачи
-	document.querySelector('.input-name-task').value = ''
-	document.querySelector('.input-description-task').value = ''
-	document.querySelector('.input-name-task')
-	document.querySelector('.input-description-task')
-}
-
-// Привязываем обработчик события submit к форме
-document.querySelector('.create-task').addEventListener('submit', saveTask)
-
 function showCreateModal() {
 	const modal = document.querySelector('.createTask-modal')
 	modal.style.display = 'flex'
@@ -196,3 +164,46 @@ async function fetchTodos() {
 document.addEventListener('DOMContentLoaded', () => {
     fetchTodos();  // Вызов после объявления функции
 });
+
+async function addTodo(event) {
+    event.preventDefault(); // Останавливает стандартное поведение формы (обновление страницы)
+
+    let title = document.getElementById("input-name-task").value;
+    let description = document.getElementById("input-description-task").value;
+
+    if (!title || !description) {
+        alert("Заполните все поля!");
+        return;
+    }
+
+    let todoData = { title, description };
+
+    try {
+        let response = await fetch("http://127.0.0.1:8000/todo/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(todoData)
+        });
+
+        if (response.ok) {
+            let data = await response.json();
+            console.log("Задача создана: " + JSON.stringify(data)); // Уведомление после создания задачи
+
+			  // Создаем задачу на фронтенде, используя данные из ответа сервера
+			  createNewTask(data.title, data.description, 'var(--status-color1)', `task${data.id}`);
+        } else {
+            let errorData = await response.json();
+            console.log("Ошибка: " + errorData.detail);
+        }
+    } catch (error) {
+        console.error("Ошибка запроса:", error);
+        console.log("Ошибка соединения с сервером");
+    }
+
+    // Закрываем модальное окно после создания задачи
+    hideCreateModal();
+
+    // Очищаем поля ввода для следующей задачи
+    document.querySelector('.input-name-task').value = '';
+    document.querySelector('.input-description-task').value = '';
+}

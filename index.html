@@ -15,9 +15,10 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-12 d-flex justify-content-center">
-						<form class="create-task" action="">
+						<form class="create-task" onsubmit="addTodo(event)">
 							<input
 								class="input-name-task"
+								id="input-name-task"
 								type="text"
 								maxlength="20"
 								placeholder="Название задачи"
@@ -25,6 +26,7 @@
 							<p class="name-maxlengh">0/20</p>
 							<input
 								class="input-description-task"
+								id="input-description-task"
 								type="text"
 								maxlength="60"
 								placeholder="Описание задачи"
@@ -33,10 +35,9 @@
 							<input
 								type="submit"
 								class="save"
-								onclick="saveTask()"
 								value="Создать"
 							/>
-						</form>
+						</form>						
 					</div>
 				</div>
 			</div>
