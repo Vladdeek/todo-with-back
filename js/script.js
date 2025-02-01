@@ -120,32 +120,45 @@ let colorIndex = 1;
 
 // Функция для создания задачи
 function createNewTask(name, description, status = 'var(--status-color1)', id = null) {
-	const taskCol = document.createElement('div');
-	taskCol.classList.add('for-take-id','col-lg-4', 'col-md-6', 'col-xs-12');
-	taskCol.id = id || `${divid++}`;
+    const taskCol = document.createElement('div');
+    taskCol.classList.add('for-take-id', 'col-lg-4', 'col-md-6', 'col-xs-12');
+    taskCol.id = id || `${divid++}`;
 
-	const taskContent = document.createElement('div');
-	taskContent.classList.add('content');
-	taskContent.id = `color${colorIndex}`;
-	colorIndex = colorIndex < 6 ? colorIndex + 1 : 1;
+    const taskContent = document.createElement('div');
+    taskContent.classList.add('content');
+    taskContent.id = `color${colorIndex}`;
+    colorIndex = colorIndex < 6 ? colorIndex + 1 : 1;
 
-	const delBtn = document.createElement('button');
-	delBtn.classList.add('del-btn');
-	delBtn.innerText = '+';
-	delBtn.setAttribute('onclick', 'deleteTodo(event)');
+    const delBtn = document.createElement('button');
+    delBtn.classList.add('del-btn');
+    delBtn.innerText = '+';
+    delBtn.setAttribute('onclick', 'deleteTodo(event)');
 
-	// Добавляем содержимое задачи
-	taskContent.innerHTML = `
-		<p class="name-task">${name}</p>
-		<p class="description-task">${description}</p>
-	`;
+    // Добавляем содержимое задачи
+    taskContent.innerHTML = `
+        <p class="name-task">${name}</p>
+        <p class="description-task">${description}</p>
+    `;
 
-	taskContent.appendChild(delBtn);
-	taskCol.appendChild(taskContent);
+    taskContent.appendChild(delBtn);
+    taskCol.appendChild(taskContent);
 
-	// Добавляем карточку в контейнер на странице
-	document.querySelector('.todo-row').appendChild(taskCol);
+    // Находим контейнер, куда добавляются задачи
+    const todoRow = document.querySelector('.todo-row');
+
+    // Находим элемент с классом 'new'
+    const newElement = document.querySelector('.new');
+
+    // Проверяем, существует ли контейнер todoRow и элемент .new
+    if (todoRow && newElement) {
+        // Вставляем новую задачу перед элементом .new
+        todoRow.insertBefore(taskCol, newElement.closest('.addTaskButton'));
+    } else {
+        // Если элемент .new не найден, добавляем задачу в конец
+        todoRow.appendChild(taskCol);
+    }
 }
+
 
 // Функция для загрузки задач из FastAPI
 async function fetchTodos() {
@@ -161,10 +174,7 @@ async function fetchTodos() {
 	}
 }
 
-// Загружаем задачи при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    fetchTodos();  // Вызов после объявления функции
-});
+
 
 async function addTodo(event) {
     event.preventDefault(); // Останавливает стандартное поведение формы (обновление страницы)
@@ -249,3 +259,9 @@ async function deleteTodo(event) {
         console.log("Ошибка соединения с сервером");
     }
 }
+
+// Загружаем задачи при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    fetchTodos();  // Вызов после объявления функции
+	toggleTheme()
+});
