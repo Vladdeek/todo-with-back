@@ -50,14 +50,13 @@ def get_db():
 
 #To-Do
 @app.post("/todo/", response_model=DbTodo)
-async def create_user(todo: TodoCreate, db: Session = Depends(get_db)) -> DbTodo:   
-    db_todo = Todo(title=todo.title, body=todo.body)
+async def create_todo(todo: TodoCreate, db: Session = Depends(get_db)) -> DbTodo:   
+    db_todo = Todo(title=todo.title, description=todo.description)
     db.add(db_todo)
     db.commit()
     db.refresh(db_todo)
 
     return db_todo
-
 
 # Вывод всех данных
 @app.get("/todo/", response_model=List[DbTodo])

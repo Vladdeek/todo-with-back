@@ -1,36 +1,8 @@
 let darkTheme = false
 let divid = 2 // глобальная переменная divid = 1 для последующего создания <div class="task"> с новым уникальным id
 
-// Функция для сохранения задач в localStorage
-function saveToLocalStorage() {
-	const tasks = []
-	document.querySelectorAll('.todo-row .col-lg-4').forEach(taskElement => {
-		const name = taskElement.querySelector('.name-task')?.textContent || ''
-		const description =
-			taskElement.querySelector('.description-task')?.textContent || ''
-		const status =
-			taskElement.querySelector('.status')?.style.backgroundColor ||
-			'var(--status-color1)'
-		const id = taskElement.id || `task${divid++}`
-
-		if (name && description) {
-			tasks.push({ id, name, description, status })
-			taskElement.id = id // Присваиваем ID элементу
-		}
-	})
-	localStorage.setItem('tasks', JSON.stringify(tasks))
-}
-
 // Функция для загрузки задач из localStorage
 function loadFromLocalStorage() {
-	const tasks = JSON.parse(localStorage.getItem('tasks')) || []
-	tasks.forEach(task => {
-		createNewTask(task.name, task.description, task.status, task.id)
-		const taskNumber = parseInt(task.id.replace('task', ''), 10)
-		if (!isNaN(taskNumber) && taskNumber >= divid) {
-			divid = taskNumber + 1 // Увеличиваем для уникальности
-		}
-	})
 	// Загружаем состояние темы
 	const savedTheme = localStorage.getItem('darkTheme') === 'true' // Преобразуем строку в boolean
 	if (savedTheme !== true) {
@@ -88,74 +60,6 @@ function hideCreateModal() {
 	setTimeout(() => {
 		modal.style.display = 'none' // Убираем из потока после завершения анимации
 	}, 200)
-}
-
-let taskRowIndex = 0
-let colorIndex = 1
-
-// Модифицированная функция для создания задач
-function createNewTask(
-	name,
-	description,
-	status = 'var(--status-color1)',
-	id = null
-) {
-	const taskCol = document.createElement('div')
-	taskCol.classList.add('col-lg-4', 'col-md-6', 'col-xs-12')
-	taskCol.id = id || `task${divid++}`
-
-	const taskContent = document.createElement('div')
-	taskContent.classList.add('content')
-	taskContent.id = `color${colorIndex}`
-	colorIndex = colorIndex < 6 ? colorIndex + 1 : 1
-
-	const delBtn = document.createElement('button')
-	delBtn.classList.add('del-btn', 'text-center')
-	delBtn.textContent = '+'
-	delBtn.onclick = function () {
-		delTask(taskCol.id) // Удаление задачи
-	}
-
-	const taskText = document.createElement('div')
-	taskText.classList.add('text')
-
-	const taskName = document.createElement('p')
-	taskName.classList.add('name-task')
-	taskName.textContent = name
-
-	const taskDescription = document.createElement('p')
-	taskDescription.classList.add('description-task')
-	taskDescription.textContent = description
-
-	const taskStatus = document.createElement('div')
-	taskStatus.classList.add('status')
-	taskStatus.style.backgroundColor = status
-	taskStatus.onclick = function () {
-		toggleStatusColor(this)
-		saveToLocalStorage() // Сохраняем изменения статуса
-	}
-
-	taskText.appendChild(taskName)
-	taskText.appendChild(taskDescription)
-	taskContent.appendChild(delBtn)
-	taskContent.appendChild(taskText)
-	taskContent.appendChild(taskStatus)
-	taskCol.appendChild(taskContent)
-
-	const todoRow = document.querySelector('.todo-row')
-	const addTaskButton = document.querySelector('.addTaskButton')
-	todoRow.insertBefore(taskCol, addTaskButton)
-
-	saveToLocalStorage() // Сохраняем после создания новой задачи
-}
-
-// Модифицированная функция для удаления задачи
-function delTask(taskId) {
-	const taskElement = document.getElementById(taskId)
-	if (taskElement) {
-		taskElement.remove()
-		saveToLocalStorage() // Сохраняем изменения после удаления
-	}
 }
 
 // Функция для обновления счетчика символов
@@ -244,11 +148,51 @@ function toggleTheme() {
 	localStorage.setItem('darkTheme', darkTheme)
 }
 
+let colorIndex = 1;
+
+// Функция для создания задачи
+function createNewTask(name, description, status = 'var(--status-color1)', id = null) {
+	const taskCol = document.createElement('div');
+	taskCol.classList.add('col-lg-4', 'col-md-6', 'col-xs-12');
+	taskCol.id = id || `task${divid++}`;
+
+	const taskContent = document.createElement('div');
+	taskContent.classList.add('content');
+	taskContent.id = `color${colorIndex}`;
+	colorIndex = colorIndex < 6 ? colorIndex + 1 : 1;
+
+	const delBtn = document.createElement('button');
+	delBtn.classList.add('del-btn');
+	delBtn.innerText = '+';
+
+	// Добавляем содержимое задачи
+	taskContent.innerHTML = `
+		<p class="name-task">${name}</p>
+		<p class="description-task">${description}</p>
+	`;
+
+	taskContent.appendChild(delBtn);
+	taskCol.appendChild(taskContent);
+
+	// Добавляем карточку в контейнер на странице
+	document.querySelector('.todo-row').appendChild(taskCol);
+}
+
+// Функция для загрузки задач из FastAPI
+async function fetchTodos() {
+	try {
+		const response = await fetch('http://localhost:8000/todo/'); // Эндпоинт FastAPI
+		const todos = await response.json();
+
+		todos.forEach(todo => {
+			createNewTask(todo.title, todo.description, 'var(--status-color1)', `task${todo.id}`);
+		});
+	} catch (error) {
+		console.error('Ошибка загрузки задач:', error);
+	}
+}
+
 // Загружаем задачи при загрузке страницы
-window.addEventListener('load', () => {
-	loadFromLocalStorage()
-	console.log(
-		'Задачи загружены:',
-		document.querySelectorAll('.todo-row .col-lg-4')
-	)
-})
+document.addEventListener('DOMContentLoaded', () => {
+    fetchTodos();  // Вызов после объявления функции
+});

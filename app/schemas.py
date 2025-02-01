@@ -4,7 +4,7 @@ from pydantic import BaseModel
 #To-Do
 class TodoBase(BaseModel):
     title: str
-    body: str
+    description: str
 
 class TodoCreate(TodoBase):
     pass
@@ -13,6 +13,7 @@ class Todo(TodoBase):
     id: int
     class Config:
         orm_mode = True
+
     
 
 #User 

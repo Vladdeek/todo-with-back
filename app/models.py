@@ -8,7 +8,7 @@ class Todo(Base):
 
     id = Column(Integer, primary_key=True, index=True)# index=True - поиск по этому столбцу
     title = Column(String)
-    body = Column(String)
+    description = Column(String)
 
 
 #User
