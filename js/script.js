@@ -263,5 +263,5 @@ async function deleteTodo(event) {
 // Загружаем задачи при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     fetchTodos();  // Вызов после объявления функции
-	toggleTheme()
+	loadFromLocalStorage()
 });
