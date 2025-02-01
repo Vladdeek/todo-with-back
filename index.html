@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<link rel="stylesheet" href="path/to/bootstrap.min.css.map" />
+		<link rel="stylesheet" href="css/style.css" />
+		<title>Home</title>
+		<link rel="icon" href="favicon.png" />
+	</head>
+	<body>
+		<div class="createTask-modal">
+			<div class="screen" onclick="hideCreateModal()"></div>
+			<div class="container">
+				<div class="row">
+					<div class="col-12 d-flex justify-content-center">
+						<form class="create-task" action="">
+							<input
+								class="input-name-task"
+								type="text"
+								maxlength="20"
+								placeholder="Название задачи"
+							/>
+							<p class="name-maxlengh">0/20</p>
+							<input
+								class="input-description-task"
+								type="text"
+								maxlength="60"
+								placeholder="Описание задачи"
+							/>
+							<p class="description-maxlengh">0/60</p>
+							<input
+								type="submit"
+								class="save"
+								onclick="saveTask()"
+								value="Создать"
+							/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<header>
+			<div class="col-12">
+				<div class="header-box d-flex justify-content-center">
+					<div class="col-11 d-flex justify-content-between">
+						<a href="" class="link text-uppercase">Done</a>
+						<button onclick="toggleTheme()" class="toggle-theme">
+							<img
+								class="theme-icon"
+								src="img/night-mode.png"
+								alt=""
+								class="theme-btn"
+							/>
+						</button>
+					</div>
+				</div>
+			</div>
+		</header>
+		<section>
+			<div class="container todo-con">
+				<div class="row todo-row">
+					<div class="addTaskButton col-lg-4 col-md-6 col-xs-12">
+						<div
+							class="new d-flex justify-content-center align-items-center"
+							onclick="showCreateModal()"
+						>
+							<img class="add-icon" src="img/addbtn.ico" alt="" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<footer></footer>
+		<script src="js/bootstrap.bundle.min.js"></script>
+		<script src="js/script.js"></script>
+	</body>
+</html>
