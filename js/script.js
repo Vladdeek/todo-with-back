@@ -443,16 +443,27 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTodos();  // Вызов после объявления функции
 	loadFromLocalStorage()
 });
- // Проверка при загрузке страницы
-window.onload = function() {
+window.onload = async function() {
     const userLink = document.querySelector('.link');
     const savedName = localStorage.getItem("username");
 
+    // Проверяем, если имя пользователя существует в localStorage
     if (savedName) {
-        userLink.textContent = savedName;
-        userLink.onclick = showExitMenu; // Устанавливаем событие выхода, если пользователь авторизован
+        const userExists = await checkUserExists(savedName);
+
+        if (userExists) {
+            // Если пользователь существует, отображаем его имя и устанавливаем событие выхода
+            userLink.textContent = savedName;
+            userLink.onclick = showExitMenu; // Устанавливаем событие выхода
+        } else {
+            // Если пользователь не найден, очищаем localStorage и отображаем кнопку "вход"
+            localStorage.removeItem("username");
+            userLink.textContent = "вход";
+            userLink.onclick = showRegAuthModal; // Событие для открытия модального окна регистрации/авторизации
+        }
     } else {
+        // Если имя пользователя не найдено в localStorage, показываем кнопку "вход"
         userLink.textContent = "вход";
-        userLink.onclick = showRegAuthModal; // Иначе оставляем событие для открытия модального окна
+        userLink.onclick = showRegAuthModal; // Событие для открытия модального окна регистрации/авторизации
     }
 };
