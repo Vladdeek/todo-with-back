@@ -15,13 +15,24 @@ function loadFromLocalStorage() {
 }
 
 function showCreateModal() {
-	const modal = document.querySelector('.createTask-modal')
-	modal.style.display = 'flex'
-    const form = document.querySelector('.reg')
-	form.style.display = 'none'
-	setTimeout(() => {
-		modal.style.opacity = '1' // Затем плавно показываем его
-	}, 0)
+    const username = localStorage.getItem("username");
+
+    if (username) {
+        const modal = document.querySelector('.createTask-modal');
+        modal.style.display = 'flex';
+    
+        const form = document.querySelector('.reg');
+        form.style.display = 'none';
+    
+        setTimeout(() => {
+            modal.style.opacity = '1'; // Затем плавно показываем его
+        }, 0);
+    } else {
+        showRegAuthModal(); // Если имя пользователя не найдено, показываем модальное окно для регистрации/авторизации
+        return; // Прерываем выполнение функции
+    }
+
+   
 }
 
 function hideCreateModal() {
@@ -365,6 +376,7 @@ async function addUser() {
         if (response.ok) {
             let data = await response.json();
             alert("Пользователь добавлен: " + JSON.stringify(data)); // Уведомление после закрытия окна
+            hideRegAuthModal()
         } else {
             let errorData = await response.json();
             alert("Ошибка: " + errorData.detail);
@@ -397,6 +409,7 @@ async function authUser() {
         if (response.ok) {
             alert("Добро пожаловать, " + data.user);
             updateUserName(data.user);  
+            hideRegAuthModal()
         } else {
             alert("Ошибка: " + data.detail);
         }

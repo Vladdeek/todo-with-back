@@ -68,6 +68,17 @@ async def get_todos_by_user(username: str, db: Session = Depends(get_db)):
     # Фильтруем задачи по имени пользователя
     return db.query(Todo).filter(Todo.user_name == username).all()
 
+@app.delete("/todo/{id}")
+async def delete_todo(id: int, db: Session = Depends(get_db)):
+    todo = db.query(Todo).filter(Todo.id == id).first()
+    if todo is None:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+    
+    db.delete(todo)
+    db.commit()
+    return {"message": f"Задача с id {id} была удалена"}
+
+
 # Вывод всех данных
 @app.get("/alltodo/", response_model=List[DbTodo])
 async def todo(db: Session = Depends(get_db)):
