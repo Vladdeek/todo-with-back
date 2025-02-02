@@ -37,7 +37,31 @@
 								class="save"
 								value="Создать"
 							/>
-						</form>						
+						</form>
+						<div class="reg flex-column">
+							<h2 class="text-center">Регистрация</h2>
+			
+							<input type="text" id="name" placeholder="Введите имя пользователя">
+							
+							<input type="password" id="password" placeholder="Введите пароль">
+		
+							<input type="password" id="confirmPassword" placeholder="Введите пароль повторно">
+		
+							<p onclick="toggleForm()" class="toggle-link text-center">У меня уже есть аккаунт</p>
+							
+							<button class="RegAuthBTN" onclick="addUser()">Зарегестрироваться</button>
+						</div>
+						<div class="auth flex-column">
+							<h2 class="text-center">Авторизация</h2>
+			
+							<input type="text" id="authname" placeholder="Введите имя пользователя">
+							
+							<input type="password" id="authpassword" placeholder="Введите пароль">
+		
+							<p onclick="toggleForm()" class="toggle-link text-center">Создать аккаунт</p>
+							
+							<button class="RegAuthBTN" onclick="authUser()">Войти</button>
+						</div>						
 					</div>
 				</div>
 			</div>
@@ -46,7 +70,7 @@
 			<div class="col-12">
 				<div class="header-box d-flex justify-content-center">
 					<div class="col-11 d-flex justify-content-between">
-						<a href="" class="link text-uppercase">Done</a>
+						<p onclick="showRegAuthModal()" class="link text-uppercase">вход</p>
 						<button onclick="toggleTheme()" class="toggle-theme">
 							<img
 								class="theme-icon"

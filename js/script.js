@@ -17,6 +17,8 @@ function loadFromLocalStorage() {
 function showCreateModal() {
 	const modal = document.querySelector('.createTask-modal')
 	modal.style.display = 'flex'
+    const form = document.querySelector('.reg')
+	form.style.display = 'none'
 	setTimeout(() => {
 		modal.style.opacity = '1' // Затем плавно показываем его
 	}, 0)
@@ -265,3 +267,156 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTodos();  // Вызов после объявления функции
 	loadFromLocalStorage()
 });
+
+function updateUserName(username) {
+    const userLink = document.querySelector('.link');
+    userLink.textContent = username;
+    userLink.onclick = showExitMenu; // При клике открывается меню выхода
+    localStorage.setItem("username", username); // Сохраняем имя в localStorage
+}
+
+let reg = document.querySelector('.reg');
+let auth = document.querySelector('.auth');
+
+reg.style.display = 'flex';
+
+function toggleForm() {
+    if (reg.style.display === 'flex') {
+        reg.style.display = 'none';
+        auth.style.display = 'flex';
+    } else {
+        reg.style.display = 'flex';
+        auth.style.display = 'none';
+    }
+}
+
+function showRegAuthModal() {
+	const modal = document.querySelector('.createTask-modal')
+    const form = document.querySelector('.create-task')
+	modal.style.display = 'flex'
+    form.style.display = 'none'
+	setTimeout(() => {
+		modal.style.opacity = '1' // Затем плавно показываем его
+	}, 0)
+}
+
+function hideRegAuthModal() {
+	const modal = document.querySelector('.createTask-modal')
+	modal.style.opacity = '0'
+	setTimeout(() => {
+		modal.style.display = 'none' // Убираем из потока после завершения анимации
+	}, 200)
+}
+
+
+
+async function checkUserExists(name) {
+    try {
+        let response = await fetch(`http://127.0.0.1:8000/users/${name}`);
+        return response.ok; // true, если пользователь найден
+    } catch (error) {
+        console.error("Ошибка запроса:", error);
+        return false;
+    }
+}
+
+async function addUser() {
+    let name = document.getElementById("name").value;
+    let password = document.getElementById("password").value;
+    let confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (!name || !password || !confirmPassword) {
+        alert("Заполните все поля!")
+        return;
+    }
+    if (password !== confirmPassword) {
+        alert("Пароли не совпадают!")
+        return;
+    }
+    if (await checkUserExists(name)) {
+        alert("Пользователь уже существует!")
+        return;
+    }
+    alert("Все данные заполнены верно.")
+    updateUserName(name);  // Меняем текст на имя пользователя
+        
+    let userData = { name, password };
+
+    try {
+        let response = await fetch("http://127.0.0.1:8000/users/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData)
+        });
+
+        if (response.ok) {
+            let data = await response.json();
+            alert("Пользователь добавлен: " + JSON.stringify(data)); // Уведомление после закрытия окна
+        } else {
+            let errorData = await response.json();
+            alert("Ошибка: " + errorData.detail);
+        }
+    } catch (error) {
+        console.error("Ошибка запроса:", error);
+        alert("Ошибка соединения с сервером");
+    }
+}
+
+async function authUser() {
+    let authname = document.getElementById("authname").value;
+    let authpassword = document.getElementById("authpassword").value;
+
+    if (!authname || !authpassword) {
+        alert("Заполните все поля!")
+        return;
+    }
+
+    try {
+        let response = await fetch("http://127.0.0.1:8000/auth/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: authname, password: authpassword })
+        });
+
+        let data = await response.json(); 
+        console.log("Ответ сервера:", data); // Проверяем, что пришло от сервера
+
+        if (response.ok) {
+            alert("Добро пожаловать, " + data.user);
+            updateUserName(data.user);  
+        } else {
+            alert("Ошибка: " + data.detail);
+        }
+    } catch (error) {
+        console.error("Ошибка запроса:", error);
+        alert("Ошибка соединения с сервером");
+    }
+}
+
+function showExitMenu() {
+    const confirmLogout = confirm("Вы хотите выйти?");
+    if (confirmLogout) {
+        logoutUser();
+    }
+}
+
+function logoutUser() {
+    const userLink = document.querySelector('.link');
+    userLink.textContent = "вход";
+    userLink.onclick = showRegAuthModal; // Возвращаем возможность открытия модального окна
+    localStorage.removeItem("username"); // Удаляем данные из localStorage
+}
+
+ // Проверка при загрузке страницы
+window.onload = function() {
+    const userLink = document.querySelector('.link');
+    const savedName = localStorage.getItem("username");
+
+    if (savedName) {
+        userLink.textContent = savedName;
+        userLink.onclick = showExitMenu; // Устанавливаем событие выхода, если пользователь авторизован
+    } else {
+        userLink.textContent = "вход";
+        userLink.onclick = showRegAuthModal; // Иначе оставляем событие для открытия модального окна
+    }
+};
