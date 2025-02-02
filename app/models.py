@@ -9,6 +9,11 @@ class Todo(Base):
     id = Column(Integer, primary_key=True, index=True)# index=True - поиск по этому столбцу
     title = Column(String)
     description = Column(String)
+    user_name = Column(String, ForeignKey("users.name"))  # Теперь внешний ключ - имя пользователя
+
+    # Связь с моделью User
+    user = relationship("User", back_populates="todos")  # Связь с задачами пользователя
+
 
 
 #User
@@ -18,6 +23,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)# index=True - поиск по этому столбцу
     name = Column(String)
     password = Column(String)
+
+    todos = relationship("Todo", back_populates="user")  # Связь с задачами пользователя
 
 
 

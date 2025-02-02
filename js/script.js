@@ -189,7 +189,15 @@ async function addTodo(event) {
         return;
     }
 
-    let todoData = { title, description };
+    // Получаем имя пользователя из localStorage
+    let username = localStorage.getItem("username");  // предполагаем, что username сохранен в localStorage
+
+    if (!username) {
+        alert("Ошибка: не найдено имя пользователя!");
+        return;
+    }
+
+    let todoData = { title, description, user_name: username }; // Добавляем user_name в тело запроса
 
     try {
         let response = await fetch("http://127.0.0.1:8000/todo/", {
@@ -202,8 +210,8 @@ async function addTodo(event) {
             let data = await response.json();
             console.log("Задача создана: " + JSON.stringify(data)); // Уведомление после создания задачи
 
-			  // Создаем задачу на фронтенде, используя данные из ответа сервера
-			  createNewTask(data.title, data.description, 'var(--status-color1)', `${data.id}`);
+            // Создаем задачу на фронтенде, используя данные из ответа сервера
+            createNewTask(data.title, data.description, 'var(--status-color1)', `${data.id}`);
         } else {
             let errorData = await response.json();
             console.log("Ошибка: " + errorData.detail);
@@ -220,6 +228,7 @@ async function addTodo(event) {
     document.querySelector('.input-name-task').value = '';
     document.querySelector('.input-description-task').value = '';
 }
+
 
 async function deleteTodo(event) {
     event.preventDefault(); // Останавливает стандартное поведение события

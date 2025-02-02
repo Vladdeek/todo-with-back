@@ -47,18 +47,23 @@ def get_db():
     finally:
         db.close()
 
-
 #To-Do
 @app.post("/todo/", response_model=DbTodo)
 async def create_todo(todo: TodoCreate, db: Session = Depends(get_db)) -> DbTodo:   
-    db_todo = Todo(title=todo.title, description=todo.description)
+    # Получаем имя пользователя из запроса (должно быть передано вместе с задачей)
+    user_name = todo.user_name
+
+    # Создаем объект задачи с именем пользователя
+    db_todo = Todo(title=todo.title, description=todo.description, user_name=user_name)
+
+    # Добавляем задачу в базу данных
     db.add(db_todo)
     db.commit()
     db.refresh(db_todo)
 
     return db_todo
 
-@app.delete("/todo/{id}")
+@app.delete("/todoid/{id}")
 async def delete_todo(id: int, db: Session = Depends(get_db)):
     todo = db.query(Todo).filter(Todo.id == id).first()
     if todo is None:
@@ -69,9 +74,10 @@ async def delete_todo(id: int, db: Session = Depends(get_db)):
     return {"message": f"Задача с id {id} была удалена"}
 
 # Вывод всех данных
-@app.get("/todo/", response_model=List[DbTodo])
+@app.get("/alltodo/", response_model=List[DbTodo])
 async def todo(db: Session = Depends(get_db)):
-    return db.query(Todo).all()
+    todos = db.query(Todo).all()  # Получаем все задачи
+    return todos  # Возвращаем задачи
 
 
 

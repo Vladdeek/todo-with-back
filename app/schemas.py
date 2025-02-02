@@ -5,6 +5,7 @@ from pydantic import BaseModel
 class TodoBase(BaseModel):
     title: str
     description: str
+    user_name: str  # Убедитесь, что это поле может быть None
 
 class TodoCreate(TodoBase):
     pass
