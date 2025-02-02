@@ -162,12 +162,22 @@ function createNewTask(name, description, status = 'var(--status-color1)', id = 
 }
 
 
-// Функция для загрузки задач из FastAPI
+// Функция для загрузки задач из FastAPI, фильтруя по имени пользователя
 async function fetchTodos() {
 	try {
-		const response = await fetch('http://localhost:8000/todo/'); // Эндпоинт FastAPI
+		// Получаем имя пользователя из localStorage
+		const username = localStorage.getItem("username");
+
+		if (!username) {
+			console.error('Ошибка: имя пользователя не найдено в localStorage');
+			return;
+		}
+
+		// Отправляем запрос на сервер с именем пользователя в качестве параметра
+		const response = await fetch(`http://localhost:8000/todo/?username=${username}`);
 		const todos = await response.json();
 
+		// Создаем задачи на основе полученных данных
 		todos.forEach(todo => {
 			createNewTask(todo.title, todo.description, 'var(--status-color1)', `${todo.id}`);
 		});
@@ -175,8 +185,6 @@ async function fetchTodos() {
 		console.error('Ошибка загрузки задач:', error);
 	}
 }
-
-
 
 async function addTodo(event) {
     event.preventDefault(); // Останавливает стандартное поведение формы (обновление страницы)
@@ -271,11 +279,7 @@ async function deleteTodo(event) {
     }
 }
 
-// Загружаем задачи при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    fetchTodos();  // Вызов после объявления функции
-	loadFromLocalStorage()
-});
+
 
 function updateUserName(username) {
     const userLink = document.querySelector('.link');
@@ -416,6 +420,13 @@ function logoutUser() {
     localStorage.removeItem("username"); // Удаляем данные из localStorage
 }
 
+
+
+// Загружаем задачи при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    fetchTodos();  // Вызов после объявления функции
+	loadFromLocalStorage()
+});
  // Проверка при загрузке страницы
 window.onload = function() {
     const userLink = document.querySelector('.link');
