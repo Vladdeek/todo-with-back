@@ -29,10 +29,7 @@ function showCreateModal() {
         }, 0);
     } else {
         showRegAuthModal(); // Если имя пользователя не найдено, показываем модальное окно для регистрации/авторизации
-        return; // Прерываем выполнение функции
     }
-
-   
 }
 
 function hideCreateModal() {
@@ -326,9 +323,11 @@ function showRegAuthModal() {
 
 function hideRegAuthModal() {
 	const modal = document.querySelector('.createTask-modal')
+    const form = document.querySelector('.create-task')
 	modal.style.opacity = '0'
 	setTimeout(() => {
 		modal.style.display = 'none' // Убираем из потока после завершения анимации
+        form.style.display = 'flex'
 	}, 200)
 }
 
