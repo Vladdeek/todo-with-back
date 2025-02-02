@@ -377,6 +377,7 @@ async function addUser() {
             let data = await response.json();
             alert("Пользователь добавлен: " + JSON.stringify(data)); // Уведомление после закрытия окна
             hideRegAuthModal()
+            fetchTodos();
         } else {
             let errorData = await response.json();
             alert("Ошибка: " + errorData.detail);
@@ -410,6 +411,7 @@ async function authUser() {
             alert("Добро пожаловать, " + data.user);
             updateUserName(data.user);  
             hideRegAuthModal()
+            fetchTodos();
         } else {
             alert("Ошибка: " + data.detail);
         }
@@ -423,6 +425,7 @@ function showExitMenu() {
     const confirmLogout = confirm("Вы хотите выйти?");
     if (confirmLogout) {
         logoutUser();
+        location.reload();  // Автоматическое обновление страницы
     }
 }
 
